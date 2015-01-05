@@ -1,17 +1,51 @@
 goREST
 ======
-Preliminary HTTP REST router.  This currently only supports consecutive paths with a prefix.
+Preliminary HTTP REST router.  This currently only supports consecutive paths with a prefix:
+
+    /api/endpoint/:type/:id
 
 Installation:
 
-    go get github.com/euforia/go-rest-router
+    go get github.com/euforia/goREST
 
 Example:
 
-    import restrouter "github.com/euforia/go-rest-router"
+    import gorest "github.com/euforia/goREST"
+
+    type TypeIdHandler struct {
+        /* Sets all methods not implemented to the default code of 405 */
+        DefaultEndpointMethodsHandler
+    }
+
+    func (r *TypeIdHandler) GET(r *http.Request, args ...string) (map[string]string, interface{}, int) {
+        _type := args[0]
+        _id := args[1]
+        
+        // do something
+        
+        headers := map[string]string{"Access-Control-Allow-Origin": "*"}
+        // some data
+        data := "..."
+        // response code
+        respCode := 200
+        
+        return headers, data, respCode
+    }
+
+
+    router := gorest.NewRESTRouter("/api/prefix", nil)
+
+    router.Register("/", RootHandler)
+    router.Reister("/:type", TypeHandler)
+    router.Reister("/:type/:_id", TypeIdHandler)
+
+    http.ListenAndServe(":8000", router)
+    
+
+
 
     
-    /api/endpoint/:type/:id
+
 
 Take a look at the following test function for example usage:
 
