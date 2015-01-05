@@ -49,4 +49,4 @@ Preliminary HTTP REST router.  This currently only supports consecutive paths wi
 
     http.ListenAndServe(":8000", router)
 
-** The handler must implement the EndpointMethodsHandler interfacee **
+** The handler must implement the EndpointMethodsHandler interface **
