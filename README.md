@@ -48,3 +48,5 @@ Preliminary HTTP REST router.  This currently only supports consecutive paths wi
     router.Reister("/:type/:_id", TypeIdHandler)
 
     http.ListenAndServe(":8000", router)
+
+** The handler must implement the EndpointMethodsHandler interfacee **
