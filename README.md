@@ -1,7 +1,7 @@
 goREST
 ======
 
-Preliminary HTTP REST router.  This currently only supports consecutive paths with a prefix:
+Preliminary HTTP REST router.  This currently only supports a single consecutive path with a prefix:
 
     Valid:
 
