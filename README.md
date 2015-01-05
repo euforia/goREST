@@ -2,7 +2,13 @@ goREST
 ======
 Preliminary HTTP REST router.  This currently only supports consecutive paths with a prefix:
 
+Valid:
+
     /api/endpoint/:type/:id
+
+Invalid:
+
+    /api/endpoint/:type/static/:id    
 
 Installation:
 
