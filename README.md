@@ -1,20 +1,21 @@
 goREST
 ======
+
 Preliminary HTTP REST router.  This currently only supports consecutive paths with a prefix:
 
-Valid:
+    Valid:
 
-    /api/endpoint/:type/:id
+        /api/endpoint/:type/:id
 
-Invalid:
+    Invalid:
 
-    /api/endpoint/:type/static/:id    
+        /api/endpoint/:type/static/:id    
 
-Installation:
+#### Installation:
 
     go get github.com/euforia/goREST
 
-Example:
+#### Usage:
 
     import gorest "github.com/euforia/goREST"
 
@@ -46,13 +47,3 @@ Example:
     router.Reister("/:type/:_id", TypeIdHandler)
 
     http.ListenAndServe(":8000", router)
-    
-
-
-
-    
-
-
-Take a look at the following test function for example usage:
-
-    rest/router_test.go: func Test_NewRESTRouter
