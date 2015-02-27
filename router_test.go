@@ -3,7 +3,7 @@ package goREST
 import (
 	"bytes"
 	"fmt"
-	"github.com/euforia/goREST/logging"
+	//"github.com/euforia/goREST/logging"
 	"net/http"
 	"testing"
 )
@@ -14,7 +14,7 @@ type TestMethodsHandler struct {
 
 var (
 	testPrefix = "/api/events"
-	logger     = logging.NewStdLogger()
+	//logger     = logging.NewStdLogger()
 
 	testMethodsHdlr = TestMethodsHandler{}
 	testHttpClient  = &http.Client{}
@@ -100,7 +100,8 @@ func pathMethodsTest(t *testing.T, path string) {
 }
 
 func Test_NewRESTRouter(t *testing.T) {
-	var rtr = NewRESTRouter(testPrefix, logger)
+	//var rtr = NewRESTRouter(testPrefix, logger)
+	var rtr = NewRESTRouter(testPrefix)
 
 	rtr.Register("/", &testMethodsHdlr)
 	rtr.Register("/:type", &testMethodsHdlr)

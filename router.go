@@ -3,7 +3,7 @@ package goREST
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/euforia/goREST/logging"
+	//"github.com/euforia/goREST/logging"
 	"net/http"
 	"strings"
 )
@@ -11,50 +11,52 @@ import (
 type RESTRouter struct {
 	Prefix     string
 	handlerMap []EndpointMethodsHandler
-	logger     *logging.Logger
+	//logger     *logging.Logger
 }
 
-func NewRESTRouter(prefix string, logger *logging.Logger) *RESTRouter {
-	if logger == nil {
-		logger = logging.NewStdLogger()
-	}
-
+//func NewRESTRouter(prefix string, logger *logging.Logger) *RESTRouter {
+func NewRESTRouter(prefix string) *RESTRouter {
+	/*
+		if logger == nil {
+			logger = logging.NewStdLogger()
+		}
+	*/
 	return &RESTRouter{
 		Prefix:     prefix,
 		handlerMap: make([]EndpointMethodsHandler, 0),
-		logger:     logger,
+		//logger:     logger,
 	}
 }
 
-func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, headers map[string]string, data []byte, respCode int) {
+func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, headers map[string]string, data interface{}, respCode int) {
 	for k, v := range headers {
 		w.Header().Set(k, v)
 	}
-	w.WriteHeader(respCode)
-	if len(data) > 0 {
-		w.Write(data)
-	}
-}
 
-func (s *RESTRouter) writeJsonResponse(writer http.ResponseWriter, headers map[string]string, data interface{}, respCode int) int {
 	var (
-		bytes []byte
-		code  int
-		err   error
+		writeData []byte
+		err       error
 	)
-
-	bytes, err = json.Marshal(&data)
-	if err != nil {
-		s.logger.Error.Println(err)
-		bytes = []byte(fmt.Sprintf(`{"error": %s}`, err))
-		code = 500
-	} else {
-		code = respCode
+	switch data.(type) {
+	case []byte:
+		b, _ := data.([]byte)
+		writeData = b
+		break
+	case string:
+		str, _ := data.(string)
+		writeData = []byte(str)
+		break
+	default:
+		if writeData, err = json.Marshal(data); err != nil {
+			writeData = []byte(fmt.Sprintf(`{"error": "%s"}`, err.Error()))
+			respCode = 400
+		}
+		w.Header().Set("Content-Type", "application/json")
+		break
 	}
 
-	writer.Header().Set("Content-Type", "application/json; charset=utf8")
-	s.writeHttpResponse(writer, headers, bytes, code)
-	return code
+	w.WriteHeader(respCode)
+	w.Write(writeData)
 }
 
 func (s *RESTRouter) pathParts(path string) []string {
@@ -64,13 +66,12 @@ func (s *RESTRouter) pathParts(path string) []string {
 			parts = append(parts, v)
 		}
 	}
-	//s.logger.Trace.Printf("%v\n", parts)
 	return parts
 }
 
 func (s *RESTRouter) Register(path string, hdlr EndpointMethodsHandler) {
 	parts := s.pathParts(path)
-	s.logger.Debug.Printf("Registering path: %s%s; Parts: %v\n", s.Prefix, path, parts)
+	//s.logger.Debug.Printf("Registering path: %s%s; Parts: %v\n", s.Prefix, path, parts)
 
 	// 0 reservded for root path.
 	if len(parts) == len(s.handlerMap) {
@@ -139,6 +140,6 @@ func (s *RESTRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			code = 404
 		}
 	}
-	s.writeJsonResponse(w, headers, data, code)
-	s.logger.Info.Printf("%s %d %s %s\n", r.Method, code, r.RequestURI, r.RemoteAddr)
+	s.writeHttpResponse(w, headers, data, code)
+	//s.logger.Info.Printf("%s %d %s %s\n", r.Method, code, r.RequestURI, r.RemoteAddr)
 }
