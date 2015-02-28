@@ -106,9 +106,9 @@ func Test_NewRESTRouter(t *testing.T) {
 	rtr.Register("/:type", &testMethodsHdlr)
 	rtr.Register("/:type/:_id", &testMethodsHdlr)
 
-	go func(rrtr *RESTRouter) {
-		http.ListenAndServe(":7878", rrtr)
-	}(rtr)
+	go func() {
+		http.ListenAndServe(":7878", nil)
+	}()
 
 	pathMethodsTest(t, testEventRootUrl)
 	pathMethodsTest(t, testEventTypeUrl)

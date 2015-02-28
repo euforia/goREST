@@ -19,11 +19,19 @@ func NewRESTRouter(prefix string, logger *Logger) *RESTRouter {
 		logger = NewStdLogger()
 	}
 
-	return &RESTRouter{
+	rtr := RESTRouter{
 		Prefix:     prefix,
 		handlerMap: make([]EndpointMethodsHandler, 0),
 		logger:     logger,
 	}
+
+	http.Handle(prefix, &rtr)
+	if strings.HasSuffix(prefix, "/") {
+		http.Handle(prefix[:len(prefix)-1], &rtr)
+	} else {
+		http.Handle(prefix+"/", &rtr)
+	}
+	return &rtr
 }
 
 func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, headers map[string]string, data interface{}, respCode int) {
