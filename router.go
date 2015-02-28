@@ -3,7 +3,6 @@ package goREST
 import (
 	"encoding/json"
 	"fmt"
-	//"github.com/euforia/goREST/logging"
 	"net/http"
 	"strings"
 )
@@ -11,20 +10,19 @@ import (
 type RESTRouter struct {
 	Prefix     string
 	handlerMap []EndpointMethodsHandler
-	//logger     *logging.Logger
+	logger     *Logger
 }
 
-//func NewRESTRouter(prefix string, logger *logging.Logger) *RESTRouter {
-func NewRESTRouter(prefix string) *RESTRouter {
-	/*
-		if logger == nil {
-			logger = logging.NewStdLogger()
-		}
-	*/
+func NewRESTRouter(prefix string, logger *Logger) *RESTRouter {
+
+	if logger == nil {
+		logger = NewStdLogger()
+	}
+
 	return &RESTRouter{
 		Prefix:     prefix,
 		handlerMap: make([]EndpointMethodsHandler, 0),
-		//logger:     logger,
+		logger:     logger,
 	}
 }
 
@@ -71,9 +69,8 @@ func (s *RESTRouter) pathParts(path string) []string {
 
 func (s *RESTRouter) Register(path string, hdlr EndpointMethodsHandler) {
 	parts := s.pathParts(path)
-	//s.logger.Debug.Printf("Registering path: %s%s; Parts: %v\n", s.Prefix, path, parts)
-
-	// 0 reservded for root path.
+	s.logger.Debug.Printf("Registering path: %s%s; Parts: %v\n", s.Prefix, path, parts)
+	// 0 reserved for root path.
 	if len(parts) == len(s.handlerMap) {
 		s.handlerMap = append(s.handlerMap, hdlr)
 	} else if len(parts) > len(s.handlerMap) {
@@ -130,7 +127,7 @@ func (s *RESTRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	parts := s.pathParts(r.URL.Path)
 	// account for root handler at index 0 //
 	if len(parts) < 0 || len(parts) > (len(s.handlerMap)-1) {
-		data = map[string]string{"error": "Not found!"}
+		data = map[string]string{"error": "Invalid path: " + r.URL.Path}
 		code = 404
 	} else {
 		if s.handlerMap[len(parts)] != nil {
@@ -141,5 +138,5 @@ func (s *RESTRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.writeHttpResponse(w, headers, data, code)
-	//s.logger.Info.Printf("%s %d %s %s\n", r.Method, code, r.RequestURI, r.RemoteAddr)
+	s.logger.Info.Printf("%s %d %s %s\n", r.Method, code, r.RequestURI, r.RemoteAddr)
 }

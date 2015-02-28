@@ -1,4 +1,4 @@
-package logging
+package goREST
 
 /*
    potentially use: https://github.com/op/go-logging
