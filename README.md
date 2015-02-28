@@ -44,8 +44,8 @@ Preliminary HTTP REST router.  This currently only supports a single consecutive
     router := gorest.NewRESTRouter("/api/prefix", nil)
 
     router.Register("/", RootHandler)
-    router.Reister("/:type", TypeHandler)
-    router.Reister("/:type/:_id", TypeIdHandler)
+    router.Register("/:type", TypeHandler)
+    router.Register("/:type/:_id", TypeIdHandler)
 
     http.ListenAndServe(":8000", router)
 
