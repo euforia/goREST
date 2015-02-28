@@ -19,6 +19,11 @@ Preliminary HTTP REST router.  This currently only supports a single consecutive
 
     import gorest "github.com/euforia/goREST"
 
+    type TypeHandler struct {
+        // Sets all methods not implemented to the default code of 405 //
+        DefaultEndpointMethodsHandler
+    }
+
     type TypeIdHandler struct {
         // Sets all methods not implemented to the default code of 405 //
         DefaultEndpointMethodsHandler
@@ -43,9 +48,9 @@ Preliminary HTTP REST router.  This currently only supports a single consecutive
 
     router := gorest.NewRESTRouter("/api/prefix", nil)
 
-    router.Register("/", RootHandler)
-    router.Register("/:type", TypeHandler)
-    router.Register("/:type/:_id", TypeIdHandler)
+    router.Register("/", &RootHandler{})
+    router.Register("/:type", &TypeHandler{})
+    router.Register("/:type/:_id", &TypeIdHandler{})
 
     http.ListenAndServe(":8000", router)
 
