@@ -34,7 +34,7 @@ func NewRESTRouter(prefix string, logger *Logger) *RESTRouter {
 	return &rtr
 }
 
-func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, headers map[string]string, data interface{}, respCode int) {
+func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, r *http.Request, headers map[string]string, data interface{}, respCode int) {
 	for k, v := range headers {
 		w.Header().Set(k, v)
 	}
@@ -53,9 +53,16 @@ func (s *RESTRouter) writeHttpResponse(w http.ResponseWriter, headers map[string
 		writeData = []byte(str)
 		break
 	default:
-		if writeData, err = json.Marshal(data); err != nil {
-			writeData = []byte(fmt.Sprintf(`{"error": "%s"}`, err.Error()))
-			respCode = 400
+		if _, ok := r.URL.Query()["pretty"]; ok {
+			if writeData, err = json.MarshalIndent(data, "", "  "); err != nil {
+				writeData = []byte(fmt.Sprintf(`{"error": "%s"}`, err.Error()))
+				respCode = 400
+			}
+		} else {
+			if writeData, err = json.Marshal(data); err != nil {
+				writeData = []byte(fmt.Sprintf(`{"error": "%s"}`, err.Error()))
+				respCode = 400
+			}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		break
@@ -145,6 +152,6 @@ func (s *RESTRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			code = 404
 		}
 	}
-	s.writeHttpResponse(w, headers, data, code)
+	s.writeHttpResponse(w, r, headers, data, code)
 	s.logger.Info.Printf("%s %d %s %s\n", r.Method, code, r.RequestURI, r.RemoteAddr)
 }
